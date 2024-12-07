@@ -1,5 +1,5 @@
 {
-  "extends": "../../api-extractor.base.jsonc",
+  "extends": "../../api-extractor.base.json",
   "projectFolder": ".",
   "mainEntryPointFilePath": "<projectFolder>/priv/assets/js/phoenix/index.d.ts",
   "dtsRollup": {
