@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import { Presence } from "../priv/assets/js/phoenix";
+import { Presence } from "../assets/js/phoenix";
 
 const clone = (obj) => {
   const cloned = JSON.parse(JSON.stringify(obj));

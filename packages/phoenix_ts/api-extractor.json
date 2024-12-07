@@ -1,7 +1,7 @@
 {
   "extends": "../../api-extractor.base.json",
   "projectFolder": ".",
-  "mainEntryPointFilePath": "<projectFolder>/priv/assets/js/phoenix/index.d.ts",
+  "mainEntryPointFilePath": "<projectFolder>/assets/js/phoenix/index.d.ts",
   "dtsRollup": {
     /**
      * (REQUIRED) Whether to generate the .d.ts rollup file.
@@ -20,7 +20,7 @@
      * SUPPORTED TOKENS: <projectFolder>, <packageName>, <unscopedPackageName>
      * DEFAULT VALUE: "<projectFolder>/dist/<unscopedPackageName>.d.ts"
      */
-    "untrimmedFilePath": "<projectFolder>/priv/assets/js/phoenix/index.d.ts"
+    "untrimmedFilePath": "<projectFolder>/assets/js/phoenix/index.d.ts"
 
     /**
      * Specifies the output path for a .d.ts rollup file to be generated with trimming for an "alpha" release.

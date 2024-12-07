@@ -1,7 +1,7 @@
 import { afterEach, beforeAll, beforeEach, describe, expect, it } from "bun:test";
 
 import sinon from "sinon";
-import { Channel, Socket } from "../priv/assets/js/phoenix";
+import { Channel, Socket } from "../assets/js/phoenix";
 
 let channel, socket;
 

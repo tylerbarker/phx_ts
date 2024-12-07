@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 
-import { Serializer } from "../priv/assets/js/phoenix";
+import { Serializer } from "../assets/js/phoenix";
 
 const exampleMsg = {
   join_ref: "0",

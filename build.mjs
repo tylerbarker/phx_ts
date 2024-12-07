@@ -2,7 +2,7 @@ import Bun from "bun";
 
 const phoenixTsResult = await Bun.build({
   entrypoints: ["./packages/phoenix_ts/src/index.ts"],
-  outdir: "./packages/phoenix_ts/priv/assets/js/phoenix",
+  outdir: "./packages/phoenix_ts/assets/js/phoenix",
   minify: true,
   target: "browser",
 });

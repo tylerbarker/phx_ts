@@ -1,14 +1,16 @@
 {
   "name": "phx_ts",
   "version": "0.0.0",
-  "workspaces": ["packages/*"],
+  "workspaces": [
+    "packages/*"
+  ],
   "devDependencies": {
     "@microsoft/api-extractor": "^7.43.2",
     "bun-types": "^1.1.38"
   },
   "scripts": {
     "build:lib": "bun build.mjs",
-    "build:types": "cd ./packages/phoenix_ts && bunx tsc && bunx api-extractor run --local",
-    "build": "bun run build:lib && bun run build:types"
+    "build:phoenix_ts:types": "cd ./packages/phoenix_ts && bunx tsc && bunx api-extractor run --local",
+    "build": "bun run build:lib && bun run build:phoenix_ts:types"
   }
 }

@@ -1,11 +1,11 @@
 {
   "name": "phoenix_ts",
-  "version": "1.7.14",
+  "version": "1.7.17",
   "description": "The unofficial TypeScript client for the Phoenix web framework.",
   "license": "MIT",
-  "main": "./priv/assets/js/phoenix/index.js",
-  "module": "./priv/assets/js/phoenix/index.js",
-  "typings": "./priv/assets/js/phoenix/index.d.ts",
+  "main": "./assets/js/phoenix/index.js",
+  "module": "./assets/js/phoenix/index.js",
+  "typings": "./assets/js/phoenix/index.d.ts",
   "type": "module",
   "repository": {
     "type": "git",
