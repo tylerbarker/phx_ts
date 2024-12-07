@@ -10,7 +10,7 @@ import {
 import sinon from "sinon";
 import { WebSocket, Server as WebSocketServer } from "mock-socket";
 import { encode } from "./serializer";
-import { Socket, LongPoll } from "../dist";
+import { Socket, LongPoll } from "../priv/assets/js/phoenix";
 
 let socket;
 

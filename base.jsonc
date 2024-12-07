@@ -1,5 +1,5 @@
+// Root tsconfig.base.json
 {
-  "include": ["./phoenix/**/*"],
   "compilerOptions": {
     // Enable latest features
     "lib": ["ESNext", "dom", "dom.iterable", "WebWorker"],
@@ -11,8 +11,7 @@
     "declaration": true,
     "emitDeclarationOnly": true,
     "declarationMap": false,
-    "outDir": "dist/",
-    "types": [],
+    "types": ["bun-types"],
 
     // Bundler mode
     "moduleResolution": "bundler",
@@ -24,7 +23,7 @@
     "skipLibCheck": true,
     "noFallthroughCasesInSwitch": true,
 
-    // Some stricter flags (disabled by default)
+    // Some stricter flags
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false

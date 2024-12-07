@@ -1,14 +1,7 @@
-import {
-  afterEach,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-} from "bun:test";
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from "bun:test";
 
 import sinon from "sinon";
-import { Channel, Socket } from "../dist";
+import { Channel, Socket } from "../priv/assets/js/phoenix";
 
 let channel, socket;
 
@@ -21,17 +14,17 @@ class WSMock {
   send() {}
 }
 
-describe("with transport", function () {
-  beforeAll(function () {
+describe("with transport", () => {
+  beforeAll(() => {
     window.WebSocket = WSMock;
   });
 
-  describe("constructor", function () {
-    beforeEach(function () {
+  describe("constructor", () => {
+    beforeEach(() => {
       socket = new Socket("/", { timeout: 1234 });
     });
 
-    it("sets defaults", function () {
+    it("sets defaults", () => {
       channel = new Channel("topic", { one: "two" }, socket);
 
       expect(channel.state).toEqual("closed");
@@ -44,7 +37,7 @@ describe("with transport", function () {
       expect(channel.pushBuffer).toStrictEqual([]);
     });
 
-    it("sets up joinPush object with literal params", function () {
+    it("sets up joinPush object with literal params", () => {
       channel = new Channel("topic", { one: "two" }, socket);
       const joinPush = channel.joinPush;
 
@@ -54,14 +47,8 @@ describe("with transport", function () {
       expect(joinPush.timeout).toEqual(1234);
     });
 
-    it("sets up joinPush object with closure params", function () {
-      channel = new Channel(
-        "topic",
-        function () {
-          return { one: "two" };
-        },
-        socket,
-      );
+    it("sets up joinPush object with closure params", () => {
+      channel = new Channel("topic", () => ({ one: "two" }), socket);
       const joinPush = channel.joinPush;
 
       expect(joinPush.channel).toStrictEqual(channel);
@@ -71,16 +58,14 @@ describe("with transport", function () {
     });
   });
 
-  describe("updating join params", function () {
-    it("can update the join params", function () {
+  describe("updating join params", () => {
+    it("can update the join params", () => {
       let counter = 0;
-      let params = function () {
-        return { value: counter };
-      };
+      const params = () => ({ value: counter });
       socket = {
         timeout: 1234,
-        onError: function () {},
-        onOpen: function () {},
+        onError: () => {},
+        onOpen: () => {},
       };
 
       channel = new Channel("topic", params, socket);
@@ -101,20 +86,20 @@ describe("with transport", function () {
     });
   });
 
-  describe("join", function () {
-    beforeEach(function () {
+  describe("join", () => {
+    beforeEach(() => {
       socket = new Socket("/socket", { timeout: defaultTimeout });
 
       channel = socket.channel("topic", { one: "two" });
     });
 
-    it("sets state to joining", function () {
+    it("sets state to joining", () => {
       channel.join();
 
       expect(channel.state).toEqual("joining");
     });
 
-    it("sets joinedOnce to true", function () {
+    it("sets joinedOnce to true", () => {
       expect(!channel.joinedOnce).toBeTruthy();
 
       channel.join();
@@ -122,16 +107,14 @@ describe("with transport", function () {
       expect(channel.joinedOnce).toBeTruthy();
     });
 
-    it("throws if attempting to join multiple times", function () {
+    it("throws if attempting to join multiple times", () => {
       channel.join();
 
       // /^Error: tried to join multiple times/
-      expect(() => channel.join()).toThrowError(
-        /^tried to join multiple times/i,
-      );
+      expect(() => channel.join()).toThrowError(/^tried to join multiple times/i);
     });
 
-    it("triggers socket push with channel params", function () {
+    it("triggers socket push with channel params", () => {
       sinon.stub(socket, "makeRef").callsFake(() => defaultRef);
       const spy = sinon.spy(socket, "push");
 
@@ -149,7 +132,7 @@ describe("with transport", function () {
       ).toBeTruthy();
     });
 
-    it("can set timeout on joinPush", function () {
+    it("can set timeout on joinPush", () => {
       const newTimeout = 2000;
       const joinPush = channel.joinPush;
 
@@ -160,9 +143,9 @@ describe("with transport", function () {
       expect(joinPush.timeout).toEqual(newTimeout);
     });
 
-    it("leaves existing duplicate topic on new join", function () {
+    it("leaves existing duplicate topic on new join", () => {
       channel.join().receive("ok", () => {
-        let newChannel = socket.channel("topic");
+        const newChannel = socket.channel("topic");
         expect(channel.isJoined()).toBeTrue();
         newChannel.join();
         expect(channel.isJoined()).toBeFalse();
@@ -171,7 +154,7 @@ describe("with transport", function () {
       channel.joinPush.trigger("ok", {});
     });
 
-    describe("timeout behavior", function () {
+    describe("timeout behavior", () => {
       let clock, joinPush;
 
       const helpers = {
@@ -181,16 +164,16 @@ describe("with transport", function () {
         },
       };
 
-      beforeEach(function () {
+      beforeEach(() => {
         clock = sinon.useFakeTimers();
         joinPush = channel.joinPush;
       });
 
-      afterEach(function () {
+      afterEach(() => {
         clock.restore();
       });
 
-      it("succeeds before timeout", function () {
+      it("succeeds before timeout", () => {
         const spy = sinon.stub(socket, "push");
         const timeout = joinPush.timeout;
 
@@ -211,7 +194,7 @@ describe("with transport", function () {
         expect(spy.callCount).toEqual(1);
       });
 
-      it("retries with backoff after timeout", function () {
+      it("retries with backoff after timeout", () => {
         const spy = sinon.stub(socket, "push");
         const timeoutSpy = sinon.spy();
         const timeout = joinPush.timeout;
@@ -238,7 +221,7 @@ describe("with transport", function () {
         expect(channel.state).toEqual("joined");
       });
 
-      it("with socket and join delay", function () {
+      it("with socket and join delay", () => {
         const spy = sinon.stub(socket, "push");
         const joinPush = channel.joinPush;
 
@@ -266,7 +249,7 @@ describe("with transport", function () {
         expect(spy.callCount).toEqual(3); // leave pushed to server
       });
 
-      it("with socket delay only", function () {
+      it("with socket delay only", () => {
         const joinPush = channel.joinPush;
 
         channel.join();
@@ -288,7 +271,7 @@ describe("with transport", function () {
     });
   });
 
-  describe("joinPush", function () {
+  describe("joinPush", () => {
     let joinPush, clock, response;
 
     const helpers = {
@@ -317,7 +300,7 @@ describe("with transport", function () {
       },
     };
 
-    beforeEach(function () {
+    beforeEach(() => {
       clock = sinon.useFakeTimers();
 
       socket = new Socket("/socket", { timeout: defaultTimeout });
@@ -330,16 +313,16 @@ describe("with transport", function () {
       channel.join();
     });
 
-    afterEach(function () {
+    afterEach(() => {
       clock.restore();
     });
 
-    describe("receives 'ok'", function () {
-      beforeEach(function () {
+    describe("receives 'ok'", () => {
+      beforeEach(() => {
         response = { chan: "reply" };
       });
 
-      it("sets channel state to joined", function () {
+      it("sets channel state to joined", () => {
         expect(channel.state).not.toEqual("joined");
 
         helpers.receiveOk();
@@ -347,7 +330,7 @@ describe("with transport", function () {
         expect(channel.state).toEqual("joined");
       });
 
-      it("triggers receive('ok') callback after ok response", function () {
+      it("triggers receive('ok') callback after ok response", () => {
         const spyOk = sinon.spy();
 
         joinPush.receive("ok", spyOk);
@@ -357,7 +340,7 @@ describe("with transport", function () {
         expect(spyOk.calledOnce).toBeTruthy();
       });
 
-      it("triggers receive('ok') callback if ok response already received", function () {
+      it("triggers receive('ok') callback if ok response already received", () => {
         const spyOk = sinon.spy();
 
         helpers.receiveOk();
@@ -367,7 +350,7 @@ describe("with transport", function () {
         expect(spyOk.calledOnce).toBeTruthy();
       });
 
-      it("does not trigger other receive callbacks after ok response", function () {
+      it("does not trigger other receive callbacks after ok response", () => {
         const spyError = sinon.spy();
         const spyTimeout = sinon.spy();
 
@@ -380,7 +363,7 @@ describe("with transport", function () {
         expect(!spyTimeout.called).toBeTruthy();
       });
 
-      it("clears timeoutTimer", function () {
+      it("clears timeoutTimer", () => {
         expect(joinPush.timeoutTimer).toBeTruthy();
 
         helpers.receiveOk();
@@ -388,7 +371,7 @@ describe("with transport", function () {
         expect(joinPush.timeoutTimer).toBeNull();
       });
 
-      it("sets receivedResp", function () {
+      it("sets receivedResp", () => {
         expect(joinPush.receivedResp).toBeNull();
 
         helpers.receiveOk();
@@ -396,7 +379,7 @@ describe("with transport", function () {
         expect(joinPush.receivedResp).toStrictEqual({ status: "ok", response });
       });
 
-      it("removes channel bindings", function () {
+      it("removes channel bindings", () => {
         let bindings = helpers.getBindings("chan_reply_3");
         expect(bindings.length).toEqual(1);
 
@@ -406,7 +389,7 @@ describe("with transport", function () {
         expect(bindings.length).toEqual(0);
       });
 
-      it("resets channel rejoinTimer", function () {
+      it("resets channel rejoinTimer", () => {
         expect(channel.rejoinTimer).toBeTruthy();
 
         const spy = sinon.spy(channel.rejoinTimer, "reset");
@@ -416,7 +399,7 @@ describe("with transport", function () {
         expect(spy.calledOnce).toBeTruthy();
       });
 
-      it("sends and empties channel's buffered pushEvents", function () {
+      it("sends and empties channel's buffered pushEvents", () => {
         const pushEvent = { send() {} };
         const spy = sinon.spy(pushEvent, "send");
 
@@ -431,8 +414,8 @@ describe("with transport", function () {
       });
     });
 
-    describe("receives 'timeout'", function () {
-      it("sets channel state to errored", function () {
+    describe("receives 'timeout'", () => {
+      it("sets channel state to errored", () => {
         joinPush.receive("timeout", () => {
           expect(channel.state).toEqual("errored");
         });
@@ -440,7 +423,7 @@ describe("with transport", function () {
         helpers.receiveTimeout();
       });
 
-      it("triggers receive('timeout') callback after ok response", function () {
+      it("triggers receive('timeout') callback after ok response", () => {
         const spyTimeout = sinon.spy();
 
         joinPush.receive("timeout", spyTimeout);
@@ -450,12 +433,10 @@ describe("with transport", function () {
         expect(spyTimeout.calledOnce).toBeTruthy();
       });
 
-      it("does not trigger other receive callbacks after timeout response", function () {
+      it("does not trigger other receive callbacks after timeout response", () => {
         const spyOk = sinon.spy();
         const spyError = sinon.spy();
-        sinon
-          .stub(channel.rejoinTimer, "scheduleTimeout")
-          .callsFake(() => true);
+        sinon.stub(channel.rejoinTimer, "scheduleTimeout").callsFake(() => true);
 
         channel.test = true;
         joinPush
@@ -470,7 +451,7 @@ describe("with transport", function () {
         helpers.receiveOk();
       });
 
-      it("schedules rejoinTimer timeout", function () {
+      it("schedules rejoinTimer timeout", () => {
         expect(channel.rejoinTimer).toBeTruthy();
 
         const spy = sinon.spy(channel.rejoinTimer, "scheduleTimeout");
@@ -481,12 +462,12 @@ describe("with transport", function () {
       });
     });
 
-    describe("receives 'error'", function () {
-      beforeEach(function () {
+    describe("receives 'error'", () => {
+      beforeEach(() => {
         response = { chan: "fail" };
       });
 
-      it("triggers receive('error') callback after error response", function () {
+      it("triggers receive('error') callback after error response", () => {
         const spyError = sinon.spy();
 
         expect(channel.state).toEqual("joining");
@@ -498,7 +479,7 @@ describe("with transport", function () {
         expect(spyError.callCount).toEqual(1);
       });
 
-      it("triggers receive('error') callback if error response already received", function () {
+      it("triggers receive('error') callback if error response already received", () => {
         const spyError = sinon.spy();
 
         helpers.receiveError();
@@ -508,7 +489,7 @@ describe("with transport", function () {
         expect(spyError.calledOnce).toBeTruthy();
       });
 
-      it("does not trigger other receive callbacks after error response", function () {
+      it("does not trigger other receive callbacks after error response", () => {
         const spyOk = sinon.spy();
         const spyError = sinon.spy();
         const spyTimeout = sinon.spy();
@@ -529,7 +510,7 @@ describe("with transport", function () {
         expect(!spyTimeout.called).toBeTruthy();
       });
 
-      it("clears timeoutTimer", function () {
+      it("clears timeoutTimer", () => {
         expect(joinPush.timeoutTimer).toBeTruthy();
 
         helpers.receiveError();
@@ -537,7 +518,7 @@ describe("with transport", function () {
         expect(joinPush.timeoutTimer).toBeNull();
       });
 
-      it("sets receivedResp with error trigger after binding", function () {
+      it("sets receivedResp with error trigger after binding", () => {
         expect(joinPush.receivedResp).toBeNull();
 
         joinPush.receive("error", (resp) => {
@@ -547,7 +528,7 @@ describe("with transport", function () {
         helpers.receiveError();
       });
 
-      it("sets receivedResp with error trigger before binding", function () {
+      it("sets receivedResp with error trigger before binding", () => {
         expect(joinPush.receivedResp).toBeNull();
 
         helpers.receiveError();
@@ -556,13 +537,13 @@ describe("with transport", function () {
         });
       });
 
-      it("does not set channel state to joined", function () {
+      it("does not set channel state to joined", () => {
         helpers.receiveError();
 
         expect(channel.state).toEqual("errored");
       });
 
-      it("does not trigger channel's buffered pushEvents", function () {
+      it("does not trigger channel's buffered pushEvents", () => {
         const pushEvent = { send: () => {} };
         const spy = sinon.spy(pushEvent, "send");
 
@@ -576,10 +557,10 @@ describe("with transport", function () {
     });
   });
 
-  describe("onError", function () {
+  describe("onError", () => {
     let clock, joinPush;
 
-    beforeEach(function () {
+    beforeEach(() => {
       clock = sinon.useFakeTimers();
 
       socket = new Socket("/socket", { timeout: defaultTimeout });
@@ -594,11 +575,11 @@ describe("with transport", function () {
       joinPush.trigger("ok", {});
     });
 
-    afterEach(function () {
+    afterEach(() => {
       clock.restore();
     });
 
-    it("sets state to 'errored'", function () {
+    it("sets state to 'errored'", () => {
       expect(channel.state).not.toEqual("errored");
 
       channel.trigger("phx_error");
@@ -606,7 +587,7 @@ describe("with transport", function () {
       expect(channel.state).toEqual("errored");
     });
 
-    it("does not trigger redundant errors during backoff", function () {
+    it("does not trigger redundant errors during backoff", () => {
       const spy = sinon.stub(joinPush, "send");
 
       expect(spy.callCount).toEqual(0);
@@ -622,7 +603,7 @@ describe("with transport", function () {
       expect(spy.callCount).toEqual(1);
     });
 
-    it("does not rejoin if channel leaving", function () {
+    it("does not rejoin if channel leaving", () => {
       channel.state = "leaving";
 
       const spy = sinon.stub(joinPush, "send");
@@ -638,7 +619,7 @@ describe("with transport", function () {
       expect(channel.state).toEqual("leaving");
     });
 
-    it("does not rejoin if channel closed", function () {
+    it("does not rejoin if channel closed", () => {
       channel.state = "closed";
 
       const spy = sinon.stub(joinPush, "send");
@@ -654,7 +635,7 @@ describe("with transport", function () {
       expect(channel.state).toEqual("closed");
     });
 
-    it("triggers additional callbacks after join", function () {
+    it("triggers additional callbacks after join", () => {
       const spy = sinon.spy();
       channel.onError(spy);
       joinPush.trigger("ok", {});
@@ -668,10 +649,10 @@ describe("with transport", function () {
     });
   });
 
-  describe("onClose", function () {
+  describe("onClose", () => {
     let clock, joinPush;
 
-    beforeEach(function () {
+    beforeEach(() => {
       clock = sinon.useFakeTimers();
 
       socket = new Socket("/socket", { timeout: defaultTimeout });
@@ -685,11 +666,11 @@ describe("with transport", function () {
       channel.join();
     });
 
-    afterEach(function () {
+    afterEach(() => {
       clock.restore();
     });
 
-    it("sets state to 'closed'", function () {
+    it("sets state to 'closed'", () => {
       expect(channel.state).not.toEqual("closed");
 
       channel.trigger("phx_close");
@@ -697,7 +678,7 @@ describe("with transport", function () {
       expect(channel.state).toEqual("closed");
     });
 
-    it("does not rejoin", function () {
+    it("does not rejoin", () => {
       const spy = sinon.stub(joinPush, "send");
 
       channel.trigger("phx_close");
@@ -709,7 +690,7 @@ describe("with transport", function () {
       expect(spy.callCount).toEqual(0);
     });
 
-    it("triggers additional callbacks", function () {
+    it("triggers additional callbacks", () => {
       const spy = sinon.spy();
       channel.onClose(spy);
 
@@ -720,7 +701,7 @@ describe("with transport", function () {
       expect(spy.callCount).toEqual(1);
     });
 
-    it("removes channel from socket", function () {
+    it("removes channel from socket", () => {
       expect(socket.channels.length).toEqual(1);
       expect(socket.channels[0]).toStrictEqual(channel);
 
@@ -730,8 +711,8 @@ describe("with transport", function () {
     });
   });
 
-  describe("onMessage", function () {
-    it("returns payload by default", function () {
+  describe("onMessage", () => {
+    it("returns payload by default", () => {
       socket = new Socket("/socket");
       channel = socket.channel("topic", { one: "two" });
       sinon.stub(socket, "makeRef").callsFake(() => defaultRef);
@@ -741,21 +722,21 @@ describe("with transport", function () {
     });
   });
 
-  describe("canPush", function () {
-    beforeEach(function () {
+  describe("canPush", () => {
+    beforeEach(() => {
       socket = new Socket("/socket");
 
       channel = socket.channel("topic", { one: "two" });
     });
 
-    it("returns true when socket connected and channel joined", function () {
+    it("returns true when socket connected and channel joined", () => {
       sinon.stub(socket, "isConnected").returns(true);
       channel.state = "joined";
 
       expect(channel.canPush()).toBeTruthy();
     });
 
-    it("otherwise returns false", function () {
+    it("otherwise returns false", () => {
       const isConnectedStub = sinon.stub(socket, "isConnected");
 
       isConnectedStub.returns(false);
@@ -775,15 +756,15 @@ describe("with transport", function () {
     });
   });
 
-  describe("on", function () {
-    beforeEach(function () {
+  describe("on", () => {
+    beforeEach(() => {
       socket = new Socket("/socket");
       sinon.stub(socket, "makeRef").callsFake(() => defaultRef);
 
       channel = socket.channel("topic", { one: "two" });
     });
 
-    it("sets up callback for event", function () {
+    it("sets up callback for event", () => {
       const spy = sinon.spy();
 
       channel.trigger("event", {}, defaultRef);
@@ -796,7 +777,7 @@ describe("with transport", function () {
       expect(spy.called).toBeTruthy();
     });
 
-    it("other event callbacks are ignored", function () {
+    it("other event callbacks are ignored", () => {
       const spy = sinon.spy();
       const ignoredSpy = sinon.spy();
 
@@ -811,13 +792,13 @@ describe("with transport", function () {
       expect(!ignoredSpy.called).toBeTruthy();
     });
 
-    it("generates unique refs for callbacks", function () {
+    it("generates unique refs for callbacks", () => {
       const ref1 = channel.on("event1", () => 0);
       const ref2 = channel.on("event2", () => 0);
       expect(ref1 + 1).toEqual(ref2);
     });
 
-    it("calls all callbacks for event if they modified during event processing", function () {
+    it("calls all callbacks for event if they modified during event processing", () => {
       const spy = sinon.spy();
 
       const ref = channel.on("event", () => {
@@ -831,15 +812,15 @@ describe("with transport", function () {
     });
   });
 
-  describe("off", function () {
-    beforeEach(function () {
+  describe("off", () => {
+    beforeEach(() => {
       socket = new Socket("/socket");
       sinon.stub(socket, "makeRef").callsFake(() => defaultRef);
 
       channel = socket.channel("topic", { one: "two" });
     });
 
-    it("removes all callbacks for event", function () {
+    it("removes all callbacks for event", () => {
       const spy1 = sinon.spy();
       const spy2 = sinon.spy();
       const spy3 = sinon.spy();
@@ -858,7 +839,7 @@ describe("with transport", function () {
       expect(spy3.called).toBeTruthy();
     });
 
-    it("removes callback by its ref", function () {
+    it("removes callback by its ref", () => {
       const spy1 = sinon.spy();
       const spy2 = sinon.spy();
 
@@ -873,11 +854,11 @@ describe("with transport", function () {
     });
   });
 
-  describe("push", function () {
+  describe("push", () => {
     let clock, joinPush;
     let socketSpy;
 
-    let pushParams = (channel) => {
+    const pushParams = (channel) => {
       return {
         topic: "topic",
         event: "event",
@@ -887,7 +868,7 @@ describe("with transport", function () {
       };
     };
 
-    beforeEach(function () {
+    beforeEach(() => {
       clock = sinon.useFakeTimers();
 
       socket = new Socket("/socket", { timeout: defaultTimeout });
@@ -898,18 +879,18 @@ describe("with transport", function () {
       channel = socket.channel("topic", { one: "two" });
     });
 
-    afterEach(function () {
+    afterEach(() => {
       clock.restore();
     });
 
-    it("sends push event when successfully joined", function () {
+    it("sends push event when successfully joined", () => {
       channel.join().trigger("ok", {});
       channel.push("event", { foo: "bar" });
 
       expect(socketSpy.calledWith(pushParams(channel))).toBeTruthy();
     });
 
-    it("enqueues push event to be sent once join has succeeded", function () {
+    it("enqueues push event to be sent once join has succeeded", () => {
       joinPush = channel.join();
       channel.push("event", { foo: "bar" });
 
@@ -921,7 +902,7 @@ describe("with transport", function () {
       expect(socketSpy.calledWith(pushParams(channel))).toBeTruthy();
     });
 
-    it("does not push if channel join times out", function () {
+    it("does not push if channel join times out", () => {
       joinPush = channel.join();
       channel.push("event", { foo: "bar" });
 
@@ -933,7 +914,7 @@ describe("with transport", function () {
       expect(!socketSpy.calledWith(pushParams(channel))).toBeTruthy();
     });
 
-    it("uses channel timeout by default", function () {
+    it("uses channel timeout by default", () => {
       const timeoutSpy = sinon.spy();
       channel.join().trigger("ok", {});
 
@@ -946,13 +927,11 @@ describe("with transport", function () {
       expect(timeoutSpy.called).toBeTruthy();
     });
 
-    it("accepts timeout arg", function () {
+    it("accepts timeout arg", () => {
       const timeoutSpy = sinon.spy();
       channel.join().trigger("ok", {});
 
-      channel
-        .push("event", { foo: "bar" }, channel.timeout * 2)
-        .receive("timeout", timeoutSpy);
+      channel.push("event", { foo: "bar" }, channel.timeout * 2).receive("timeout", timeoutSpy);
 
       clock.tick(channel.timeout);
       expect(!timeoutSpy.called).toBeTruthy();
@@ -961,7 +940,7 @@ describe("with transport", function () {
       expect(timeoutSpy.called).toBeTruthy();
     });
 
-    it("does not time out after receiving 'ok'", function () {
+    it("does not time out after receiving 'ok'", () => {
       channel.join().trigger("ok", {});
       const timeoutSpy = sinon.spy();
       const push = channel.push("event", { foo: "bar" });
@@ -976,18 +955,16 @@ describe("with transport", function () {
       expect(!timeoutSpy.called).toBeTruthy();
     });
 
-    it("throws if channel has not been joined", function () {
-      expect(() => channel.push("event", {})).toThrow(
-        /^tried to push.*before joining/i,
-      );
+    it("throws if channel has not been joined", () => {
+      expect(() => channel.push("event", {})).toThrow(/^tried to push.*before joining/i);
     });
   });
 
-  describe("leave", function () {
+  describe("leave", () => {
     let clock;
     let socketSpy;
 
-    beforeEach(function () {
+    beforeEach(() => {
       clock = sinon.useFakeTimers();
 
       socket = new Socket("/socket", { timeout: defaultTimeout });
@@ -998,11 +975,11 @@ describe("with transport", function () {
       channel.join().trigger("ok", {});
     });
 
-    afterEach(function () {
+    afterEach(() => {
       clock.restore();
     });
 
-    it("unsubscribes from server events", function () {
+    it("unsubscribes from server events", () => {
       sinon.stub(socket, "makeRef").callsFake(() => defaultRef);
       const joinRef = channel.joinRef();
 
@@ -1019,7 +996,7 @@ describe("with transport", function () {
       ).toBeTruthy();
     });
 
-    it("closes channel on 'ok' from server", function () {
+    it("closes channel on 'ok' from server", () => {
       const anotherChannel = socket.channel("another", { three: "four" });
       expect(socket.channels.length).toEqual(2);
 
@@ -1029,7 +1006,7 @@ describe("with transport", function () {
       expect(socket.channels[0]).toStrictEqual(anotherChannel);
     });
 
-    it("sets state to closed on 'ok' event", function () {
+    it("sets state to closed on 'ok' event", () => {
       expect(channel.state).not.toEqual("closed");
 
       channel.leave().trigger("ok", {});
@@ -1041,7 +1018,7 @@ describe("with transport", function () {
     // behavior can be fixed; currently, 'ok' is triggered immediately
     // within Channel.leave so timeout callbacks are never reached
     //
-    it.skip("sets state to leaving initially", function () {
+    it.skip("sets state to leaving initially", () => {
       expect(channel.state).not.toEqual("leaving");
 
       channel.leave();
@@ -1049,7 +1026,7 @@ describe("with transport", function () {
       expect(channel.state).toEqual("leaving");
     });
 
-    it.skip("closes channel on 'timeout'", function () {
+    it.skip("closes channel on 'timeout'", () => {
       channel.leave();
 
       clock.tick(channel.timeout);
@@ -1057,7 +1034,7 @@ describe("with transport", function () {
       expect(channel.state).toEqual("closed");
     });
 
-    it.skip("accepts timeout arg", function () {
+    it.skip("accepts timeout arg", () => {
       channel.leave(channel.timeout * 2);
 
       clock.tick(channel.timeout);

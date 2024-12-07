@@ -1,4 +1,3 @@
-export type TimerId = number;
 type TimerCallback = () => void;
 type TimerCalculation = (tries: number) => number;
 
@@ -13,9 +12,9 @@ type TimerCalculation = (tries: number) => number;
  * reconnectTimer.reset();
  * reconnectTimer.scheduleTimeout(); // fires after 1000 ms
  */
-export default class Timer {
-  timer: TimerId | null = null;
-  tries: number = 0;
+export default class PhxTimer {
+  timer: Timer | null = null;
+  tries = 0;
   callback: TimerCallback;
   timerCalc: TimerCalculation;
 

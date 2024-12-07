@@ -1,7 +1,6 @@
 import Ajax from "./ajax";
-import { DEFAULT_TIMEOUT, SOCKET_STATES, TRANSPORTS } from "./constants";
 import type { AjaxRequest, AjaxRequestCallback, RequestMethod } from "./ajax";
-import type { TimerId } from "./timer";
+import { DEFAULT_TIMEOUT, SOCKET_STATES, TRANSPORTS } from "./constants";
 
 type PhxResponse = {
   status: number;
@@ -9,10 +8,10 @@ type PhxResponse = {
   messages: Record<string | number, unknown>[];
 };
 
-let arrayBufferToBase64 = (buffer: ArrayBuffer) => {
+const arrayBufferToBase64 = (buffer: ArrayBuffer) => {
   let binary = "";
-  let bytes = new Uint8Array(buffer);
-  let len = bytes.byteLength;
+  const bytes = new Uint8Array(buffer);
+  const len = bytes.byteLength;
   for (let i = 0; i < len; i++) {
     binary += String.fromCharCode(bytes[i]);
   }
@@ -23,11 +22,11 @@ export default class LongPoll {
   endPoint: string | null = null;
   token: string | null = null;
   timeout: number = DEFAULT_TIMEOUT;
-  skipHeartbeat: boolean = true;
+  skipHeartbeat = true;
   reqs: Set<AjaxRequest> = new Set();
-  awaitingBatchAck: boolean = false;
+  awaitingBatchAck = false;
   currentBatch: any = null;
-  currentBatchTimer: TimerId | null = null;
+  currentBatchTimer: Timer | null = null;
   batchBuffer: any[] = [];
   pollEndpoint: string;
   readyState: SOCKET_STATES = SOCKET_STATES.connecting;
@@ -39,10 +38,10 @@ export default class LongPoll {
 
   constructor(endPoint: string) {
     this.pollEndpoint = this.normalizeEndpoint(endPoint);
-    this.onopen = function () {}; // noop
-    this.onerror = function () {}; // noop
-    this.onmessage = function () {}; // noop
-    this.onclose = function () {}; // noop
+    this.onopen = () => {}; // noop
+    this.onerror = () => {}; // noop
+    this.onmessage = () => {}; // noop
+    this.onclose = () => {}; // noop
     // we must wait for the caller to finish setting up our callbacks and timeout properties
     setTimeout(() => this.poll(), 0);
   }
@@ -51,17 +50,11 @@ export default class LongPoll {
     return endPoint
       .replace("ws://", "http://")
       .replace("wss://", "https://")
-      .replace(
-        new RegExp("(.*)/" + TRANSPORTS.websocket),
-        "$1/" + TRANSPORTS.longpoll,
-      );
+      .replace(new RegExp("(.*)/" + TRANSPORTS.websocket), "$1/" + TRANSPORTS.longpoll);
   }
 
   endpointURL() {
-    return Ajax.appendParams(
-      this.pollEndpoint,
-      this.token ? { token: this.token } : {},
-    );
+    return Ajax.appendParams(this.pollEndpoint, this.token ? { token: this.token } : {});
   }
 
   closeAndRetry(code: number, reason: string, wasClean: boolean | number) {
@@ -75,10 +68,7 @@ export default class LongPoll {
   }
 
   isActive() {
-    return (
-      this.readyState === SOCKET_STATES.open ||
-      this.readyState === SOCKET_STATES.connecting
-    );
+    return this.readyState === SOCKET_STATES.open || this.readyState === SOCKET_STATES.connecting;
   }
 
   poll() {
@@ -91,11 +81,7 @@ export default class LongPoll {
         let status = 0;
         let messages: Record<string | number, unknown>[] = [];
         if (resp) {
-          let {
-            status: respStatus,
-            messages: respMessages,
-            token,
-          } = resp as PhxResponse;
+          const { status: respStatus, messages: respMessages, token } = resp as PhxResponse;
           status = respStatus;
           messages = respMessages;
           this.token = token;
@@ -193,11 +179,11 @@ export default class LongPoll {
   }
 
   close(code: number, reason: string, wasClean: boolean | number) {
-    for (let req of this.reqs) {
+    for (const req of this.reqs) {
       req.abort();
     }
     this.readyState = SOCKET_STATES.closed;
-    let opts = Object.assign(
+    const opts = Object.assign(
       { code: 1000, reason: undefined, wasClean: true },
       { code, reason, wasClean },
     );
@@ -219,7 +205,7 @@ export default class LongPoll {
     callback: AjaxRequestCallback,
   ) {
     let req: AjaxRequest;
-    let ontimeout = () => {
+    const ontimeout = () => {
       this.reqs.delete(req);
       onCallerTimeout();
     };

@@ -1,13 +1,13 @@
 import Bun from "bun";
 
-const result = await Bun.build({
-  entrypoints: ["./phoenix/index.ts"],
-  outdir: "./dist",
+const phoenixTsResult = await Bun.build({
+  entrypoints: ["./packages/phoenix_ts/src/index.ts"],
+  outdir: "./packages/phoenix_ts/priv/assets/js/phoenix",
   minify: true,
   target: "browser",
 });
 
-if (!result.success) {
-  console.error(result);
-  throw Error("Encountered an error during build.");
+if (!phoenixTsResult.success) {
+  console.error(phoenixTsResult);
+  throw Error("phoenix_ts: Encountered an error during build.");
 }

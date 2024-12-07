@@ -42,7 +42,7 @@ export default {
     if (isBinaryMessage(msg)) {
       return callback(this.binaryEncode(msg));
     } else {
-      let payload = [msg.join_ref, msg.ref, msg.topic, msg.event, msg.payload];
+      const payload = [msg.join_ref, msg.ref, msg.topic, msg.event, msg.payload];
       return callback(JSON.stringify(payload));
     }
   },
@@ -51,7 +51,7 @@ export default {
     if (isArrayBuffer(rawMsg)) {
       return callback(this.binaryDecode(rawMsg));
     } else {
-      let [join_ref, ref, topic, event, payload] = JSON.parse(rawMsg);
+      const [join_ref, ref, topic, event, payload] = JSON.parse(rawMsg);
       return callback({ join_ref, ref, topic, event, payload });
     }
   },
@@ -59,15 +59,11 @@ export default {
   // private
 
   binaryEncode(message: BinaryMessage): ArrayBuffer {
-    let { join_ref, ref, event, topic, payload } = message;
-    let metaLength =
-      this.META_LENGTH +
-      (join_ref?.length || 0) +
-      (ref?.length || 0) +
-      topic.length +
-      event.length;
-    let header = new ArrayBuffer(this.HEADER_LENGTH + metaLength);
-    let view = new DataView(header);
+    const { join_ref, ref, event, topic, payload } = message;
+    const metaLength =
+      this.META_LENGTH + (join_ref?.length || 0) + (ref?.length || 0) + topic.length + event.length;
+    const header = new ArrayBuffer(this.HEADER_LENGTH + metaLength);
+    const view = new DataView(header);
     let offset = 0;
 
     view.setUint8(offset++, BINARY_KINDS.push); // kind
@@ -75,26 +71,23 @@ export default {
     view.setUint8(offset++, ref?.length || 0);
     view.setUint8(offset++, topic.length);
     view.setUint8(offset++, event.length);
-    Array.from(join_ref || "", (char) =>
-      view.setUint8(offset++, char.charCodeAt(0)),
-    );
-    Array.from(ref || "", (char) =>
-      view.setUint8(offset++, char.charCodeAt(0)),
-    );
+    Array.from(join_ref || "", (char) => view.setUint8(offset++, char.charCodeAt(0)));
+    Array.from(ref || "", (char) => view.setUint8(offset++, char.charCodeAt(0)));
     Array.from(topic, (char) => view.setUint8(offset++, char.charCodeAt(0)));
     Array.from(event, (char) => view.setUint8(offset++, char.charCodeAt(0)));
 
-    var combined = new Uint8Array(header.byteLength + payload.byteLength);
+    const combined = new Uint8Array(header.byteLength + payload.byteLength);
     combined.set(new Uint8Array(header), 0);
     combined.set(new Uint8Array(payload), header.byteLength);
 
-    return combined.buffer;
+    // ArrayBufferLike is not quite ArrayBuffer
+    return (combined.buffer as ArrayBuffer);
   },
 
   binaryDecode(buffer: ArrayBuffer) {
-    let view = new DataView(buffer);
-    let kind = view.getUint8(0) as BINARY_KINDS;
-    let decoder = new TextDecoder();
+    const view = new DataView(buffer);
+    const kind = view.getUint8(0) as BINARY_KINDS;
+    const decoder = new TextDecoder();
     switch (kind) {
       case BINARY_KINDS.push:
         return this.decodePush(buffer, view, decoder);
@@ -105,22 +98,18 @@ export default {
     }
   },
 
-  decodePush(
-    buffer: ArrayBuffer,
-    view: DataView,
-    decoder: TextDecoder,
-  ): DecodedMessage {
-    let joinRefSize = view.getUint8(1);
-    let topicSize = view.getUint8(2);
-    let eventSize = view.getUint8(3);
+  decodePush(buffer: ArrayBuffer, view: DataView, decoder: TextDecoder): DecodedMessage {
+    const joinRefSize = view.getUint8(1);
+    const topicSize = view.getUint8(2);
+    const eventSize = view.getUint8(3);
     let offset = this.HEADER_LENGTH + this.META_LENGTH - 1; // pushes have no ref
-    let joinRef = decoder.decode(buffer.slice(offset, offset + joinRefSize));
+    const joinRef = decoder.decode(buffer.slice(offset, offset + joinRefSize));
     offset = offset + joinRefSize;
-    let topic = decoder.decode(buffer.slice(offset, offset + topicSize));
+    const topic = decoder.decode(buffer.slice(offset, offset + topicSize));
     offset = offset + topicSize;
-    let event = decoder.decode(buffer.slice(offset, offset + eventSize));
+    const event = decoder.decode(buffer.slice(offset, offset + eventSize));
     offset = offset + eventSize;
-    let data = buffer.slice(offset, buffer.byteLength);
+    const data = buffer.slice(offset, buffer.byteLength);
     return {
       join_ref: joinRef,
       ref: null,
@@ -130,26 +119,22 @@ export default {
     };
   },
 
-  decodeReply(
-    buffer: ArrayBuffer,
-    view: DataView,
-    decoder: TextDecoder,
-  ): DecodedMessage {
-    let joinRefSize = view.getUint8(1);
-    let refSize = view.getUint8(2);
-    let topicSize = view.getUint8(3);
-    let eventSize = view.getUint8(4);
+  decodeReply(buffer: ArrayBuffer, view: DataView, decoder: TextDecoder): DecodedMessage {
+    const joinRefSize = view.getUint8(1);
+    const refSize = view.getUint8(2);
+    const topicSize = view.getUint8(3);
+    const eventSize = view.getUint8(4);
     let offset = this.HEADER_LENGTH + this.META_LENGTH;
-    let joinRef = decoder.decode(buffer.slice(offset, offset + joinRefSize));
+    const joinRef = decoder.decode(buffer.slice(offset, offset + joinRefSize));
     offset = offset + joinRefSize;
-    let ref = decoder.decode(buffer.slice(offset, offset + refSize));
+    const ref = decoder.decode(buffer.slice(offset, offset + refSize));
     offset = offset + refSize;
-    let topic = decoder.decode(buffer.slice(offset, offset + topicSize));
+    const topic = decoder.decode(buffer.slice(offset, offset + topicSize));
     offset = offset + topicSize;
-    let event = decoder.decode(buffer.slice(offset, offset + eventSize));
+    const event = decoder.decode(buffer.slice(offset, offset + eventSize));
     offset = offset + eventSize;
-    let data = buffer.slice(offset, buffer.byteLength);
-    let payload = { status: event, response: data };
+    const data = buffer.slice(offset, buffer.byteLength);
+    const payload = { status: event, response: data };
     return {
       join_ref: joinRef,
       ref: ref,
@@ -159,19 +144,15 @@ export default {
     };
   },
 
-  decodeBroadcast(
-    buffer: ArrayBuffer,
-    view: DataView,
-    decoder: TextDecoder,
-  ): DecodedMessage {
-    let topicSize = view.getUint8(1);
-    let eventSize = view.getUint8(2);
+  decodeBroadcast(buffer: ArrayBuffer, view: DataView, decoder: TextDecoder): DecodedMessage {
+    const topicSize = view.getUint8(1);
+    const eventSize = view.getUint8(2);
     let offset = this.HEADER_LENGTH + 2;
-    let topic = decoder.decode(buffer.slice(offset, offset + topicSize));
+    const topic = decoder.decode(buffer.slice(offset, offset + topicSize));
     offset = offset + topicSize;
-    let event = decoder.decode(buffer.slice(offset, offset + eventSize));
+    const event = decoder.decode(buffer.slice(offset, offset + eventSize));
     offset = offset + eventSize;
-    let data = buffer.slice(offset, buffer.byteLength);
+    const data = buffer.slice(offset, buffer.byteLength);
 
     return {
       join_ref: null,

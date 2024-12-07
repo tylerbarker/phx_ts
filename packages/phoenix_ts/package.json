@@ -1,0 +1,29 @@
+{
+  "name": "phoenix_ts",
+  "version": "1.7.14",
+  "description": "The unofficial TypeScript client for the Phoenix web framework.",
+  "license": "MIT",
+  "main": "./priv/assets/js/phoenix/index.js",
+  "module": "./priv/assets/js/phoenix/index.js",
+  "typings": "./priv/assets/js/phoenix/index.d.ts",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/tylerbarker/phx_ts.git"
+  },
+  "author": "Chris McCord <chris@chrismccord.com> (https://www.phoenixframework.org)",
+  "contributors": [
+    "Tyler Barker <tyler@prototape.fm> (https://prototape.fm)"
+  ],
+  "devDependencies": {
+    "@happy-dom/global-registrator": "^14.10.1",
+    "@microsoft/api-extractor": "^7.43.2",
+    "@types/bun": "latest",
+    "mock-socket": "^9.3.1",
+    "sinon": "^17.0.2"
+  },
+  "peerDependencies": {
+    "typescript": "^5.4.5"
+  },
+  "sideEffects": false
+}

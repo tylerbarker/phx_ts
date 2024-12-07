@@ -1,0 +1,7 @@
+{
+  "extends": "../../base.jsonc",
+  "include": ["./src/**/*"],
+  "compilerOptions": {
+    "outDir": "priv/assets/js/phoenix"
+  }
+}

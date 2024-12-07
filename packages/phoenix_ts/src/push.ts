@@ -1,5 +1,4 @@
-import Channel from "./channel";
-import type { TimerId } from "./timer";
+import type Channel from "./channel";
 
 type PushStatus = "ok" | "error" | "timeout";
 type ClosuredPayload = () => Record<string | number, unknown>;
@@ -19,24 +18,15 @@ export default class Push {
   refEvent: string | null = null;
   receivedResp: Record<string | number, unknown> | null = null;
   timeout: number;
-  timeoutTimer: TimerId | null = null;
+  timeoutTimer: Timer | null = null;
   recHooks: any[] = [];
-  sent: boolean = false;
+  sent = false;
 
-  constructor(
-    channel: Channel,
-    event: string,
-    payload: ClosuredPayload,
-    timeout: number,
-  ) {
+  constructor(channel: Channel, event: string, payload: ClosuredPayload, timeout: number) {
     this.channel = channel;
     this.event = event;
     this.timeout = timeout;
-    this.payload =
-      payload ||
-      function () {
-        return {};
-      };
+    this.payload = payload || (() => ({}));
   }
 
   resend(timeout: number) {
@@ -84,9 +74,7 @@ export default class Push {
   }
 
   private matchReceive({ status, response, _ref }: any) {
-    this.recHooks
-      .filter((h) => h.status === status)
-      .forEach((h) => h.callback(response));
+    this.recHooks.filter((h) => h.status === status).forEach((h) => h.callback(response));
   }
 
   private cancelRefEvent() {

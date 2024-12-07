@@ -1,9 +1,9 @@
 import { describe, expect, it } from "bun:test";
 
-import { Presence } from "../dist";
+import { Presence } from "../priv/assets/js/phoenix";
 
-let clone = (obj) => {
-  let cloned = JSON.parse(JSON.stringify(obj));
+const clone = (obj) => {
+  const cloned = JSON.parse(JSON.stringify(obj));
   Object.entries(obj).map(([key, val]) => {
     if (val === undefined) {
       cloned[key] = undefined;
@@ -12,7 +12,7 @@ let clone = (obj) => {
   return cloned;
 };
 
-let fixtures = {
+const fixtures = {
   joins() {
     return { u1: { metas: [{ id: 1, phx_ref: "1.2" }] } };
   },
@@ -28,7 +28,7 @@ let fixtures = {
   },
 };
 
-let channelStub = {
+const channelStub = {
   ref: 1,
   events: {},
 
@@ -49,13 +49,13 @@ let channelStub = {
   },
 };
 
-let listByFirst = (id, { metas: [first, ..._rest] }) => first;
+const listByFirst = (id, { metas: [first, ..._rest] }) => first;
 
-describe("syncState", function () {
-  it("syncs empty state", function () {
-    let newState = { u1: { metas: [{ id: 1, phx_ref: "1" }] } };
+describe("syncState", () => {
+  it("syncs empty state", () => {
+    const newState = { u1: { metas: [{ id: 1, phx_ref: "1" }] } };
     let state = {};
-    let stateBefore = clone(state);
+    const stateBefore = clone(state);
     Presence.syncState(state, newState);
     expect(state).toStrictEqual(stateBefore);
 
@@ -63,15 +63,15 @@ describe("syncState", function () {
     expect(state).toStrictEqual(newState);
   });
 
-  it("onJoins new presences and onLeave's left presences", function () {
-    let newState = fixtures.state();
+  it("onJoins new presences and onLeave's left presences", () => {
+    const newState = fixtures.state();
     let state = { u4: { metas: [{ id: 4, phx_ref: "4" }] } };
-    let joined = {};
-    let left = {};
-    let onJoin = (key, current, newPres) => {
+    const joined = {};
+    const left = {};
+    const onJoin = (key, current, newPres) => {
       joined[key] = { current: current, newPres: newPres };
     };
-    let onLeave = (key, current, leftPres) => {
+    const onLeave = (key, current, leftPres) => {
       left[key] = { current: current, leftPres: leftPres };
     };
 
@@ -90,8 +90,8 @@ describe("syncState", function () {
     });
   });
 
-  it("onJoins only newly added metas", function () {
-    let newState = {
+  it("onJoins only newly added metas", () => {
+    const newState = {
       u3: {
         metas: [
           { id: 3, phx_ref: "3" },
@@ -100,12 +100,12 @@ describe("syncState", function () {
       },
     };
     let state = { u3: { metas: [{ id: 3, phx_ref: "3" }] } };
-    let joined = [];
-    let left = [];
-    let onJoin = (key, current, newPres) => {
+    const joined = [];
+    const left = [];
+    const onJoin = (key, current, newPres) => {
       joined.push([key, clone({ current: current, newPres: newPres })]);
     };
-    let onLeave = (key, current, leftPres) => {
+    const onLeave = (key, current, leftPres) => {
       left.push([key, clone({ current: current, leftPres: leftPres })]);
     };
     state = Presence.syncState(state, clone(newState), onJoin, onLeave);
@@ -123,10 +123,10 @@ describe("syncState", function () {
   });
 });
 
-describe("syncDiff", function () {
-  it("syncs empty state", function () {
-    let joins = { u1: { metas: [{ id: 1, phx_ref: "1" }] } };
-    let state = Presence.syncDiff(
+describe("syncDiff", () => {
+  it("syncs empty state", () => {
+    const joins = { u1: { metas: [{ id: 1, phx_ref: "1" }] } };
+    const state = Presence.syncDiff(
       {},
       {
         joins: joins,
@@ -136,7 +136,7 @@ describe("syncDiff", function () {
     expect(state).toStrictEqual(joins);
   });
 
-  it("removes presence when meta is empty and adds additional meta", function () {
+  it("removes presence when meta is empty and adds additional meta", () => {
     let state = fixtures.state();
     state = Presence.syncDiff(state, {
       joins: fixtures.joins(),
@@ -154,7 +154,7 @@ describe("syncDiff", function () {
     });
   });
 
-  it("removes meta while leaving key if other metas exist", function () {
+  it("removes meta while leaving key if other metas exist", () => {
     let state = {
       u1: {
         metas: [
@@ -174,9 +174,9 @@ describe("syncDiff", function () {
   });
 });
 
-describe("list", function () {
-  it("lists full presence by default", function () {
-    let state = fixtures.state();
+describe("list", () => {
+  it("lists full presence by default", () => {
+    const state = fixtures.state();
     expect(Presence.list(state)).toStrictEqual([
       { metas: [{ id: 1, phx_ref: "1" }] },
       { metas: [{ id: 2, phx_ref: "2" }] },
@@ -184,8 +184,8 @@ describe("list", function () {
     ]);
   });
 
-  it("lists with custom function", function () {
-    let state = {
+  it("lists with custom function", () => {
+    const state = {
       u1: {
         metas: [
           { id: 1, phx_ref: "1.first" },
@@ -194,22 +194,20 @@ describe("list", function () {
       },
     };
 
-    let listBy = (key, { metas: [first, ..._rest] }) => {
+    const listBy = (key, { metas: [first, ..._rest] }) => {
       return first;
     };
 
-    expect(Presence.list(state, listBy)).toStrictEqual([
-      { id: 1, phx_ref: "1.first" },
-    ]);
+    expect(Presence.list(state, listBy)).toStrictEqual([{ id: 1, phx_ref: "1.first" }]);
   });
 });
 
-describe("instance", function () {
-  it("syncs state and diffs", function () {
-    let presence = new Presence(channelStub);
-    let user1 = { metas: [{ id: 1, phx_ref: "1" }] };
-    let user2 = { metas: [{ id: 2, phx_ref: "2" }] };
-    let newState = { u1: user1, u2: user2 };
+describe("instance", () => {
+  it("syncs state and diffs", () => {
+    const presence = new Presence(channelStub);
+    const user1 = { metas: [{ id: 1, phx_ref: "1" }] };
+    const user2 = { metas: [{ id: 2, phx_ref: "2" }] };
+    const newState = { u1: user1, u2: user2 };
 
     channelStub.trigger("presence_state", newState);
     expect(presence.list(listByFirst)).toStrictEqual([
@@ -221,10 +219,10 @@ describe("instance", function () {
     expect(presence.list(listByFirst)).toStrictEqual([{ id: 2, phx_ref: "2" }]);
   });
 
-  it("applies pending diff if state is not yet synced", function () {
-    let presence = new Presence(channelStub);
-    let onJoins = [];
-    let onLeaves = [];
+  it("applies pending diff if state is not yet synced", () => {
+    const presence = new Presence(channelStub);
+    const onJoins = [];
+    const onLeaves = [];
 
     presence.onJoin((id, current, newPres) => {
       onJoins.push(clone({ id, current, newPres }));
@@ -234,18 +232,16 @@ describe("instance", function () {
     });
 
     // new connection
-    let user1 = { metas: [{ id: 1, phx_ref: "1" }] };
-    let user2 = { metas: [{ id: 2, phx_ref: "2" }] };
-    let user3 = { metas: [{ id: 3, phx_ref: "3" }] };
-    let newState = { u1: user1, u2: user2 };
-    let leaves = { u2: user2 };
+    const user1 = { metas: [{ id: 1, phx_ref: "1" }] };
+    const user2 = { metas: [{ id: 2, phx_ref: "2" }] };
+    const user3 = { metas: [{ id: 3, phx_ref: "3" }] };
+    const newState = { u1: user1, u2: user2 };
+    const leaves = { u2: user2 };
 
     channelStub.trigger("presence_diff", { joins: {}, leaves: leaves });
 
     expect(presence.list(listByFirst)).toStrictEqual([]);
-    expect(presence.pendingDiffs).toStrictEqual([
-      { joins: {}, leaves: leaves },
-    ]);
+    expect(presence.pendingDiffs).toStrictEqual([{ joins: {}, leaves: leaves }]);
 
     channelStub.trigger("presence_state", newState);
     expect(onLeaves).toStrictEqual([
@@ -283,30 +279,30 @@ describe("instance", function () {
     expect(presence.list(listByFirst)).toStrictEqual([{ id: 3, phx_ref: "3" }]);
   });
 
-  it("allows custom channel events", function () {
-    let presence = new Presence(channelStub, {
+  it("allows custom channel events", () => {
+    const presence = new Presence(channelStub, {
       events: {
         state: "the_state",
         diff: "the_diff",
       },
     });
 
-    let user1 = { metas: [{ id: 1, phx_ref: "1" }] };
+    const user1 = { metas: [{ id: 1, phx_ref: "1" }] };
     channelStub.trigger("the_state", { user1: user1 });
     expect(presence.list(listByFirst)).toStrictEqual([{ id: 1, phx_ref: "1" }]);
     channelStub.trigger("the_diff", { joins: {}, leaves: { user1: user1 } });
     expect(presence.list(listByFirst)).toStrictEqual([]);
   });
 
-  it("updates existing meta for a presence update (leave + join)", function () {
-    let presence = new Presence(channelStub);
-    let onJoins = [];
-    let onLeaves = [];
+  it("updates existing meta for a presence update (leave + join)", () => {
+    const presence = new Presence(channelStub);
+    const onJoins = [];
+    const onLeaves = [];
 
     // new connection
-    let user1 = { metas: [{ id: 1, phx_ref: "1" }] };
-    let user2 = { metas: [{ id: 2, name: "chris", phx_ref: "2" }] };
-    let newState = { u1: user1, u2: user2 };
+    const user1 = { metas: [{ id: 1, phx_ref: "1" }] };
+    const user2 = { metas: [{ id: 2, name: "chris", phx_ref: "2" }] };
+    const newState = { u1: user1, u2: user2 };
 
     channelStub.trigger("presence_state", clone(newState));
 
@@ -317,7 +313,7 @@ describe("instance", function () {
       onLeaves.push(clone({ id, current, leftPres }));
     });
 
-    expect(presence.list((id, { metas: metas }) => metas)).toStrictEqual([
+    expect(presence.list((id, { metas }) => metas)).toStrictEqual([
       [
         {
           id: 1,
@@ -333,15 +329,15 @@ describe("instance", function () {
       ],
     ]);
 
-    let leaves = { u2: user2 };
-    let joins = {
+    const leaves = { u2: user2 };
+    const joins = {
       u2: {
         metas: [{ id: 2, name: "chris.2", phx_ref: "2.2", phx_ref_prev: "2" }],
       },
     };
     channelStub.trigger("presence_diff", { joins: joins, leaves: leaves });
 
-    expect(presence.list((id, { metas: metas }) => metas)).toStrictEqual([
+    expect(presence.list((id, { metas }) => metas)).toStrictEqual([
       [
         {
           id: 1,
