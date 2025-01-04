@@ -57,7 +57,10 @@ describe("metadata", () => {
     const btn = view.el.querySelector("button");
     let meta = {};
     stubViewPushEvent(view, (type, el, target, phxEvent, metadata, _opts) => {
+      console.log("OUTER META", meta);
+      console.log("INNER META", metadata);
       meta = metadata;
+      console.log("OUTER META POST ASSIGN", meta);
     });
     btn.dispatchEvent(new Event("click", { bubbles: true }));
 
