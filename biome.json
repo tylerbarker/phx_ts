@@ -8,6 +8,9 @@
   "linter": {
     "enabled": true,
     "rules": {
+      "style": {
+        "useConst": "off"
+      },
       "complexity": {
         "noUselessThisAlias": "off",
         "noForEach": "off"
@@ -17,7 +20,5 @@
   "organizeImports": {
     "enabled": true
   },
-  "files": {
-    "ignore": ["./packages/**/*.test.js"]
-  }
+  "files": {}
 }

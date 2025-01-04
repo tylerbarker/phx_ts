@@ -123,10 +123,6 @@ export let isUsedInput = (el) => DOM.isUsedInput(el)
 export default class LiveSocket {
   constructor(url, phxSocket, opts = {}){
     this.unloaded = false
-    console.log("phxSocket!!", phxSocket.constructor.name)
-    console.log("prototype!!", phxSocket.prototype.name)
-    console.log("prototypeConnect!!", phxSocket.prototype.connect)
-    console.log("typeoff!!", typeof phxSocket)
     if(!phxSocket || phxSocket.constructor.name === "Object"){
       throw new Error(`
       a phoenix Socket must be provided as the second argument to the LiveSocket constructor. For example:
