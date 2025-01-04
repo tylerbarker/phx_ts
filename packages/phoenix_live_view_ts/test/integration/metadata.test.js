@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, test } from "bun:test";
+import * as core from '@actions/core';
 import { Socket } from "phoenix_ts";
 import LiveSocket from "../../src/live_socket";
 
@@ -57,10 +58,10 @@ describe("metadata", () => {
     const btn = view.el.querySelector("button");
     let meta = {};
     stubViewPushEvent(view, (type, el, target, phxEvent, metadata, _opts) => {
-      console.log("OUTER META", meta);
-      console.log("INNER META", metadata);
+      core.debug(`OUTER META: ${JSON.stringify(meta)}`);
+      core.debug(`INNER META: ${JSON.stringify(metadata)}`);
       meta = metadata;
-      console.log("OUTER META POST ASSIGN", meta);
+      core.debug(`OUTER META ASSIGN ${JSON.stringify(meta)}`);
     });
     btn.dispatchEvent(new Event("click", { bubbles: true }));
 

@@ -5,6 +5,7 @@
     "packages/*"
   ],
   "devDependencies": {
+    "@actions/core": "^1.11.1",
     "@microsoft/api-extractor": "^7.43.2",
     "bun-types": "^1.1.38"
   },
