@@ -28,7 +28,7 @@ const prepareLiveViewDOM = (document, rootId) => {
 
 describe("events", () => {
   beforeEach(() => {
-    prepareLiveViewDOM(global.document, "root");
+    prepareLiveViewDOM(globalThis.document, "root");
   });
 
   test("send change event to correct target", () => {

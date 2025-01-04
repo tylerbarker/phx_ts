@@ -1,14 +1,14 @@
 import { describe, expect, test } from "bun:test";
 
 import { Socket } from "phoenix_ts";
-import { closestPhxBinding } from "../src/utils";
 import { LiveSocket } from "../assets/js/phoenix_live_view";
+import { closestPhxBinding } from "../src/utils";
 
-import {simulateJoinedView, liveViewDOM} from "./test_helpers"
+import {liveViewDOM, simulateJoinedView } from "./test_helpers"
 
 let setupView = (content) => {
   let el = liveViewDOM(content)
-  global.document.body.appendChild(el)
+  globalThis.document.body.appendChild(el)
   let liveSocket = new LiveSocket("/live", Socket)
   return simulateJoinedView(el, liveSocket)
 }
@@ -21,8 +21,8 @@ describe("utils", () => {
         <span id="innerContent">This is a button</span>
       </button>
       `)
-      let element = global.document.querySelector("#innerContent")
-      let parent = global.document.querySelector("#button")
+      let element = globalThis.document.querySelector("#innerContent")
+      let parent = globalThis.document.querySelector("#button")
       expect(closestPhxBinding(element, "phx-click")).toBe(parent)
     })
 
@@ -32,7 +32,7 @@ describe("utils", () => {
         <span id="innerContent">This is a button</span>
       </button>
       `)
-      let element = global.document.querySelector("#innerContent")
+      let element = globalThis.document.querySelector("#innerContent")
       expect(closestPhxBinding(element, "phx-click")).toBe(null)
     })
   })
