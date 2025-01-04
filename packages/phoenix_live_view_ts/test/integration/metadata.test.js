@@ -1,5 +1,4 @@
 import { beforeEach, describe, expect, test } from "bun:test";
-import * as core from '@actions/core';
 import { Socket } from "phoenix_ts";
 import LiveSocket from "../../src/live_socket";
 
@@ -56,16 +55,19 @@ describe("metadata", () => {
     const view = liveSocket.getViewByEl(document.getElementById("root"));
     view.isConnected = () => true;
     const btn = view.el.querySelector("button");
-    let meta = {};
+
+    let metaCheck = {};
+    const setMetaCheck = (attrs) => {
+      metaCheck = attrs;
+    }
+    const getMetaCheck = () => metaCheck;
+
     stubViewPushEvent(view, (type, el, target, phxEvent, metadata, _opts) => {
-      core.debug(`OUTER META: ${JSON.stringify(meta)}`);
-      core.debug(`INNER META: ${JSON.stringify(metadata)}`);
-      meta = metadata;
-      core.debug(`OUTER META ASSIGN ${JSON.stringify(meta)}`);
+      setMetaCheck(metadata);
     });
     btn.dispatchEvent(new Event("click", { bubbles: true }));
 
-    expect(meta).toEqual({
+    expect(getMetaCheck()).toEqual({
       id: "btn",
       altKey: undefined,
     });
