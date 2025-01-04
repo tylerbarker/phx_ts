@@ -9,8 +9,9 @@
     "bun-types": "^1.1.38"
   },
   "scripts": {
-    "build:lib": "bun build.mjs",
-    "build:phoenix_ts:types": "cd ./packages/phoenix_ts && bunx tsc && bunx api-extractor run --local",
-    "build": "bun run build:lib && bun run build:phoenix_ts:types"
+    "build:libs": "bun build.mjs",
+    "build:types:phoenix_ts": "cd ./packages/phoenix_ts && bunx tsc && bunx api-extractor run --local",
+    "build:types:phoenix_live_view_ts": "cd ./packages/phoenix_live_view_ts && bunx tsc && bunx api-extractor run --local",
+    "build": "bun run build:libs && bun run build:types:phoenix_ts && bun run build:types:phoenix_live_view_ts"
   }
 }

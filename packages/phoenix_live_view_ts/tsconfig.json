@@ -1,0 +1,7 @@
+{
+  "extends": "../../base.jsonc",
+  "include": ["./src/**/*"],
+  "compilerOptions": {
+    "outDir": "assets/js/phoenix_live_view"
+  }
+}

@@ -1,11 +1,11 @@
 {
-  "name": "phoenix_ts",
-  "version": "1.7.17",
-  "description": "The unofficial TypeScript client for the Phoenix web framework.",
+  "name": "phoenix_live_view_ts",
+  "version": "1.0.0",
+  "description": "The unofficial TypeScript client for Phoenix LiveView.",
   "license": "MIT",
-  "main": "./assets/js/phoenix/index.js",
-  "module": "./assets/js/phoenix/index.js",
-  "typings": "./assets/js/phoenix/index.d.ts",
+  "main": "./assets/js/phoenix_live_view_ts/index.js",
+  "module": "./assets/js/phoenix_live_view_ts/index.js",
+  "typings": "./assets/js/phoenix_live_view_ts/index.d.ts",
   "type": "module",
   "repository": {
     "type": "git",
@@ -15,13 +15,16 @@
   "contributors": [
     "Tyler Barker <tyler@prototape.fm> (https://prototape.fm)"
   ],
+  "dependencies": {
+    "morphdom": "2.7.4"
+  },
   "devDependencies": {
     "@happy-dom/global-registrator": "^14.10.1",
     "@microsoft/api-extractor": "^7.43.2",
     "@types/bun": "latest",
     "mock-socket": "^9.3.1",
     "sinon": "^17.0.2",
+    "phoenix_ts": "workspace:phoenix_ts",
     "typescript": "^5.7.2"
-  },
-  "sideEffects": false
+  }
 }

@@ -2,6 +2,7 @@
 
 # Phoenix community types for reference during development
 phoenix.d.ts
+phoenix_live_view.d.ts
 
 # Build directory
 assets/

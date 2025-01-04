@@ -9,7 +9,8 @@
     "enabled": true,
     "rules": {
       "complexity": {
-        "noUselessThisAlias": "off"
+        "noUselessThisAlias": "off",
+        "noForEach": "off"
       }
     }
   },
