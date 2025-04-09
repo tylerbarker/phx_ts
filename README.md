@@ -1,5 +1,7 @@
 # phx_ts
 
+⚠️ Update: I'm no longer working on this. Anyone interested is welcome to copy and continue in my place if they wish.
+
 `phx_ts` is an experiment and a learning exercise. It's an attempt to port the JS libraries bundled with the Phoenix & Phoenix LiveView package to TypeScript such that you can install them via Hex, update your `package.json` and get all the resulting types with no change in functionality. Bundled and tested with [Bun](https://bun.sh).
 
 I'll be doing the same for `phoenix_live_view` as the 2nd package in this monorepo soon. Both will be published to Hex independently of one another.
